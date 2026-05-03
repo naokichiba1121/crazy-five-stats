@@ -24,8 +24,10 @@ class StatsEntryAdapter extends TypeAdapter<StatsEntry> {
       hits: fields[4] as int,
       homeRuns: fields[5] as int,
       rbi: fields[6] as int,
+      sacrifices: (fields[8] as int?) ?? 0,
+      instagram: (fields[10] as int?) ?? 0,
+      threads: (fields[11] as int?) ?? 0,
       stolenBases: fields[7] as int,
-      sacrifices: fields[8] as int,
       errors: fields[9] as int,
     );
   }
@@ -33,7 +35,7 @@ class StatsEntryAdapter extends TypeAdapter<StatsEntry> {
   @override
   void write(BinaryWriter writer, StatsEntry obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,7 +55,11 @@ class StatsEntryAdapter extends TypeAdapter<StatsEntry> {
       ..writeByte(8)
       ..write(obj.sacrifices)
       ..writeByte(9)
-      ..write(obj.errors);
+      ..write(obj.errors)
+      ..writeByte(10)
+      ..write(obj.instagram)
+      ..writeByte(11)
+      ..write(obj.threads);
   }
 
   @override

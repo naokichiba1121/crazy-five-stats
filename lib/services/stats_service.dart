@@ -50,7 +50,7 @@ class StatsService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 同じ日・同じスタッフのエントリがあれば返す（なければnull）
+  /// 同じ日・同じスタッフのエントリがあればnullでなく返す
   StatsEntry? findEntry(DateTime date, String staffName) {
     final dateKey = '${date.year}-${date.month}-${date.day}';
     try {
@@ -64,29 +64,35 @@ class StatsService extends ChangeNotifier {
   }
 }
 
-class _StaffStats {
+class StaffStats {
   final String staffName;
   int atBats = 0;
   int hits = 0;
   int homeRuns = 0;
   int rbi = 0;
-  int stolenBases = 0;
   int sacrifices = 0;
+  int instagram = 0;
+  int threads = 0;
+  int stolenBases = 0;
   int errors = 0;
   int games = 0;
 
-  _StaffStats(this.staffName);
+  StaffStats(this.staffName);
 
   void add(StatsEntry e) {
     atBats += e.atBats;
     hits += e.hits;
     homeRuns += e.homeRuns;
     rbi += e.rbi;
-    stolenBases += e.stolenBases;
     sacrifices += e.sacrifices;
+    instagram += e.instagram;
+    threads += e.threads;
+    stolenBases += e.stolenBases;
     errors += e.errors;
     games++;
   }
+
+  int get totalScout => instagram + threads;
 
   double get battingAverage => atBats == 0 ? 0.0 : hits / atBats;
 
@@ -94,9 +100,4 @@ class _StaffStats {
     if (atBats == 0) return '.000';
     return '.${(battingAverage * 1000).floor().toString().padLeft(3, '0')}';
   }
-}
-
-// publicに公開
-class StaffStats extends _StaffStats {
-  StaffStats(super.staffName);
 }
