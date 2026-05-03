@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="/crazy-five-stats/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="CRAZY FIVE プロ野球風スタッツ日報">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="CRAZY FIVE Stats">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>CRAZY FIVE スタッツ日報</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    body { background-color: #0A0E1A; margin: 0; padding: 0; }
+  </style>
+</head>
+<body>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) { registration.unregister(); }
+      });
+    }
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
