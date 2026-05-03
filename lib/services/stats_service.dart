@@ -31,7 +31,6 @@ class StatsService extends ChangeNotifier {
   /// 今週のエントリ（月曜始まり）
   List<StatsEntry> get thisWeekEntries {
     final now = DateTime.now();
-    // 月曜日を週の始まりとする (weekday: 1=月 〜 7=日)
     final startOfWeek =
         DateTime(now.year, now.month, now.day - (now.weekday - 1));
     final endOfWeek = startOfWeek.add(const Duration(days: 7));
@@ -39,6 +38,74 @@ class StatsService extends ChangeNotifier {
       final d = DateTime(e.date.year, e.date.month, e.date.day);
       return !d.isBefore(startOfWeek) && d.isBefore(endOfWeek);
     }).toList();
+  }
+
+  /// 今シーズン（3ヶ月区切り）のエントリ
+  /// 2〜4月 / 5〜7月 / 8〜10月 / 11〜1月
+  List<StatsEntry> get thisSeasonEntries {
+    final now = DateTime.now();
+    final range = _seasonRange(now);
+    return allEntries.where((e) {
+      final d = DateTime(e.date.year, e.date.month, e.date.day);
+      return !d.isBefore(range[0]) && d.isBefore(range[1]);
+    }).toList();
+  }
+
+  /// 今年度（2月1日〜翌年1月末）のエントリ
+  List<StatsEntry> get thisYearEntries {
+    final now = DateTime.now();
+    final range = _fiscalYearRange(now);
+    return allEntries.where((e) {
+      final d = DateTime(e.date.year, e.date.month, e.date.day);
+      return !d.isBefore(range[0]) && d.isBefore(range[1]);
+    }).toList();
+  }
+
+  /// シーズン開始・終了日を返す [start, exclusiveEnd]
+  /// 11〜1月シーズンは年をまたぐため特別処理
+  static List<DateTime> _seasonRange(DateTime now) {
+    final m = now.month;
+    if (m >= 2 && m <= 4) {
+      return [DateTime(now.year, 2, 1), DateTime(now.year, 5, 1)];
+    } else if (m >= 5 && m <= 7) {
+      return [DateTime(now.year, 5, 1), DateTime(now.year, 8, 1)];
+    } else if (m >= 8 && m <= 10) {
+      return [DateTime(now.year, 8, 1), DateTime(now.year, 11, 1)];
+    } else {
+      // 11月〜1月（翌年）
+      final startYear = m == 1 ? now.year - 1 : now.year;
+      return [
+        DateTime(startYear, 11, 1),
+        DateTime(startYear + 1, 2, 1),
+      ];
+    }
+  }
+
+  /// 今年度の開始・終了日を返す [start, exclusiveEnd]
+  /// 年度 = 2月1日〜翌年1月31日
+  static List<DateTime> _fiscalYearRange(DateTime now) {
+    final startYear = now.month == 1 ? now.year - 1 : now.year;
+    return [
+      DateTime(startYear, 2, 1),
+      DateTime(startYear + 1, 2, 1), // 翌年2月1日（exclusive）→ 翌年1月末まで
+    ];
+  }
+
+  /// 現在のシーズン表示ラベル（例: "2〜4月"）
+  static String get currentSeasonLabel {
+    final now = DateTime.now();
+    final m = now.month;
+    if (m >= 2 && m <= 4) return '2〜4月';
+    if (m >= 5 && m <= 7) return '5〜7月';
+    if (m >= 8 && m <= 10) return '8〜10月';
+    return '11〜1月';
+  }
+
+  /// 現在の年度表示ラベル（例: "2025年度"）
+  static String get currentFiscalYearLabel {
+    final now = DateTime.now();
+    final startYear = now.month == 1 ? now.year - 1 : now.year;
+    return '$startYear年度';
   }
 
   /// スタッフ別集計

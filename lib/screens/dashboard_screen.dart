@@ -26,7 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         setState(() => _tabIndex = _tabController.index);
@@ -46,6 +46,10 @@ class _DashboardScreenState extends State<DashboardScreen>
         return service.thisWeekEntries;
       case 1:
         return service.thisMonthEntries;
+      case 2:
+        return service.thisSeasonEntries;
+      case 3:
+        return service.thisYearEntries;
       default:
         return service.allEntries;
     }
@@ -198,10 +202,12 @@ class _DashboardScreenState extends State<DashboardScreen>
             fontSize: 12, fontWeight: FontWeight.w700),
         unselectedLabelStyle: const TextStyle(fontSize: 12),
         dividerColor: Colors.transparent,
-        tabs: const [
-          Tab(text: '📅 今週'),
-          Tab(text: '🗓️ 今月'),
-          Tab(text: '🏆 累計'),
+        tabs: [
+          const Tab(text: '📅 今週'),
+          const Tab(text: '🗓️ 今月'),
+          Tab(text: '🌸 ${StatsService.currentSeasonLabel}'),
+          Tab(text: '📆 ${StatsService.currentFiscalYearLabel}'),
+          const Tab(text: '🏆 全累計'),
         ],
       ),
     );
@@ -209,7 +215,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   // ── 空状態 ───────────────────────────────────────────────────────────────
   Widget _buildEmptyState() {
-    final labels = ['今週', '今月', '全期間'];
+    final labels = ['今週', '今月', StatsService.currentSeasonLabel, StatsService.currentFiscalYearLabel, '全期間'];
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -266,7 +272,13 @@ class _DashboardScreenState extends State<DashboardScreen>
     final totalSB = list.fold(0, (s, e) => s + e.stolenBases);
     final totalGames = list.fold(0, (s, e) => s + e.games);
 
-    final periodLabel = ['今週', '今月', '全期間'][_tabIndex];
+    final periodLabel = [
+      '今週',
+      '今月',
+      StatsService.currentSeasonLabel,
+      StatsService.currentFiscalYearLabel,
+      '全期間',
+    ][_tabIndex];
 
     return Container(
       padding: const EdgeInsets.all(16),
