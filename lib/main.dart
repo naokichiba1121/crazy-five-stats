@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'models/stats_entry.dart';
 import 'services/stats_service.dart';
 import 'screens/input_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/setup_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ja_JP', null);
-
-  // Hive初期化
-  await Hive.initFlutter();
-  Hive.registerAdapter(StatsEntryAdapter());
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
@@ -39,7 +34,32 @@ class CrazyStatsApp extends StatelessWidget {
       title: 'CRAZY FIVE スタッツ',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      home: const MainShell(),
+      home: const AppRoot(),
+    );
+  }
+}
+
+/// GAS URLが未設定なら初期設定画面、設定済みならメイン画面へ
+class AppRoot extends StatelessWidget {
+  const AppRoot({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<StatsService>(
+      builder: (context, service, _) {
+        if (!service.isInitialized) {
+          return const Scaffold(
+            backgroundColor: AppTheme.bgDark,
+            body: Center(
+              child: CircularProgressIndicator(color: AppTheme.neonGreen),
+            ),
+          );
+        }
+        if (!service.hasGasUrl) {
+          return const SetupScreen();
+        }
+        return const MainShell();
+      },
     );
   }
 }
@@ -152,19 +172,16 @@ class _NavItem extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                icon,
-                style: TextStyle(
-                  fontSize: isActive ? 22 : 20,
-                ),
-              ),
+              Text(icon, style: TextStyle(fontSize: isActive ? 22 : 20)),
               const SizedBox(height: 3),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 200),
                 style: TextStyle(
-                  color: isActive ? AppTheme.neonGreen : AppTheme.textSecondary,
+                  color:
+                      isActive ? AppTheme.neonGreen : AppTheme.textSecondary,
                   fontSize: 11,
-                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+                  fontWeight:
+                      isActive ? FontWeight.w700 : FontWeight.w400,
                   letterSpacing: 0.3,
                 ),
                 child: Text(label),

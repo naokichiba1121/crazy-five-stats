@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../services/stats_service.dart';
-import '../models/stats_entry.dart';
 import '../theme/app_theme.dart';
 
 class InputScreen extends StatefulWidget {
@@ -239,12 +238,26 @@ class _InputScreenState extends State<InputScreen>
       errors: _errors,
     );
 
-    await service.saveEntry(entry);
+    final success = await service.saveEntry(entry);
     setState(() => _isSaving = false);
-    HapticFeedback.heavyImpact();
 
-    if (mounted) {
+    if (!mounted) return;
+
+    if (success) {
+      HapticFeedback.heavyImpact();
       _showCelebration();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            service.lastError ?? '保存に失敗しました。通信状態を確認してください。',
+          ),
+          backgroundColor: const Color(0xFFFF3B30),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
     }
   }
 
